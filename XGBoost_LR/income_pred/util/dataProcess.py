@@ -4,8 +4,6 @@
 # 数据集说明：用户的一些特征，预测用户的收入是<50000还是>50000
 
 import pandas as pd
-from sklearn.datasets import dump_svmlight_file
-import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 
@@ -27,26 +25,6 @@ def read_raw_data(dataPath):
     le = LabelEncoder()
     raw_data["Y"] = le.fit_transform(raw_data["Y"])
     return raw_data
-
-#######################################################################################################################
-# 获取训练xgboost模型的数据
-def getXgbTrainData(raw_data):
-    A1 = raw_data.iloc[0:40000, :]
-    # 7个连续特征
-    X_A1 = A1[ ["age", "wage_per_hour", "capital_gains", "capital_losses",
-                "dividends_stocks",  "code_change_msa", "employer_num", "work_weeks_per_year"] ]
-    Y_A1 = A1["Y"]
-    # 训练集
-    X_A1_train = X_A1.iloc[0:30000,:]
-    Y_A1_train = Y_A1.iloc[0:30000]
-    dump_svmlight_file(X=X_A1_train, y=Y_A1_train, f="E:\\MachineLearning\\data\\classfication\\kdd_census\\data\\A1_train_svm_data",
-                       zero_based=True, multilabel=False)
-    # 测试集
-    X_A1_test = X_A1.iloc[30000:40000,:]
-    Y_A1_test = Y_A1.iloc[30000:40000]
-    dump_svmlight_file(X=X_A1_test, y=Y_A1_test,
-                       f="E:\\MachineLearning\\data\\classfication\\kdd_census\\data\\A1_test_svm_data",
-                       zero_based=True, multilabel=False)
 
 #######################################################################################################################
 # 单特征One-Hote编码，并加入到原来的样本数据dataFrame中
@@ -98,6 +76,33 @@ def featureOneHotSVM(df, featNames, catesDict, cateCountsDict, labels, path):
             pos = featValues.index(featValue) + offset
             lineFeatStr = lineFeatStr + ( " %d:1" % (pos) )
             offset = offset + cateCountsDict[feat] # 修改总偏移量
+        # save this libSVM line to file.
+        f.write(lineFeatStr)
+        f.write("\n")
+        # iterator increment.
+        idx = idx + 1
+    # close file.
+    f.close()
+
+#######################################################################################################################
+# 处理连续型特征（存储为libSVM格式），用于XGBoost模型训练
+def continousFeatureSVM( df, featNames, labels, path ):
+    # get labels.
+    le = LabelEncoder()
+    newLabels = le.fit_transform(labels).tolist()
+    idx = 0
+    lineCount = len(df.iloc[:, 0].index.values.tolist())
+    f = open(path, 'a')
+    while (idx < lineCount):
+        # line -> libSVM string.
+        lineFeatStr = ("%d" % (newLabels[idx]))
+        line = df.iloc[idx]
+        offset = 1  # 总偏移量
+        for feat in featNames:
+            featValue = str( line[feat] )
+            if( float(featValue) != float(0.0) ):
+                lineFeatStr = lineFeatStr + ( " %d:%s" % (offset,featValue) )
+            offset = offset + 1
         # save this libSVM line to file.
         f.write(lineFeatStr)
         f.write("\n")

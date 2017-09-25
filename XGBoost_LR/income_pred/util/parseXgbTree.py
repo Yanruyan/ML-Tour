@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 # 解析xgboost的树的叶子节点
 
-def parse_xgb_tree_leaf(filePath):
+def parseXgbTreeLeaf(filePath):
     fs = open(filePath,'r')
     lines = fs.readlines()
     # 解析xgboost模型文本，得到每棵树的叶子节点编号[L1,L2,...,Ln]
@@ -38,5 +38,5 @@ def parse_xgb_tree_leaf(filePath):
     return treeDic
 
 if __name__=="__main__":
-    tm = parse_xgb_tree_leaf("E:\\MachineLearning\\ml\\XGBoost_LR\\income_pred\\modelFile\\xgb_base_model.txt")
+    tm = parseXgbTreeLeaf("../modelFile/xgb_base_model.txt")
     print tm

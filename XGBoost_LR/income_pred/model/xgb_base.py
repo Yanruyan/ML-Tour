@@ -6,9 +6,9 @@ import xgboost as xgb
 from sklearn.metrics import roc_curve,auc
 import matplotlib.pyplot as plt
 
-# 读取数据（libsvm格式）
-train_data = xgb.DMatrix( "E:\\MachineLearning\\data\\classfication\\kdd_census\\data\\A1_train_svm_data" )
-test_data = xgb.DMatrix( "E:\\MachineLearning\\data\\classfication\\kdd_census\\data\\A1_test_svm_data" )
+# 读取数据（标准libsvm格式）
+train_data = xgb.DMatrix( "E:\\MachineLearning\\data\\classfication\\kdd_census\\data\\A1_train_svm_data.txt" )
+test_data = xgb.DMatrix( "E:\\MachineLearning\\data\\classfication\\kdd_census\\data\\A1_test_svm_data.txt" )
 
 # 超参数设置
 # 1、xgboost模型参数（包括：通用参数、booster参数、训练学习参数）
@@ -45,4 +45,8 @@ plt.plot( fpr, tpr, lw=1, alpha=0.3, label='ROC-Curve' )
 plt.show()
 
 # 保存xgb_base模型
+# 文本格式的模型文件，便于解析
 xgb_base.dump_model( fout="E:\\MachineLearning\\ml\\XGBoost_LR\\income_pred\\modelFile\\xgb_base_model.txt" )
+# 二进制格式的模型文件，后面可以直接加载模型
+xgb_base.save_model( fname="E:\\MachineLearning\\ml\\XGBoost_LR\\income_pred\\modelFile\\xgb_base_bin" )
+
