@@ -34,12 +34,12 @@ y_test_real = test_data.get_label()
 # 2、测试集上错误率
 error_count = sum( y_test_real != (y_test_pred>0.5) )
 error_rate = float(error_count) / len(y_test_pred)
-print "error_rate:",error_rate     # error_rate : 0.0513
+print "error_rate:",error_rate     # error_rate : 0.0513350445015
 # 3、测试集上ROC曲线、AUC
 # auc
 fpr, tpr, threshold = roc_curve( y_true=y_test_real, y_score=y_test_pred )
 auc_base = auc( fpr, tpr )
-print "auc_base:",auc_base    # AUC : 0.915548627804
+print "auc_base:",auc_base    # AUC : 0.91536472245
 # roc
 plt.plot( fpr, tpr, lw=1, alpha=0.3, label='ROC-Curve' )
 plt.show()

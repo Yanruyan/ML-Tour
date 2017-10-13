@@ -119,3 +119,52 @@ def getFeatCateInfo( df, featName ):
     feat_cate_count = len(feat_cates)
     return feat_cates,feat_cate_count
 
+#######################################################################################################################
+# 合并类别型特征+xgboost特征
+def mergeXgbFeature( catX, catFeatNames, catesDict, cateCountsDict, catY,
+                     predictByLeaf, treeDict, offsetDict, path ):
+    # label.
+    le = LabelEncoder()
+    newLabels = le.fit_transform(catY).tolist()
+    # init.
+    idx = 0
+    lineCount = len(catX.iloc[:, 0].index.values.tolist())
+    f = open(path, 'a')
+    # merge all features.
+    while ( idx < lineCount ):
+        # 类别型特征
+        lineFeatStr = ( "%d" % (newLabels[idx]) )
+        line = catX.iloc[idx]
+        globalOffset = 1  # 总偏移量
+        for feat in catFeatNames:
+            featValue = line[feat]
+            featValues = catesDict[feat]
+            pos = featValues.index(featValue) + globalOffset
+            lineFeatStr = lineFeatStr + ( " %d:1" % (pos) )
+            globalOffset = globalOffset + cateCountsDict[feat] # 修改总偏移量
+        # xgboost特征
+        leafLine = predictByLeaf[idx]
+        treeIndex = 0
+        for leafIndex in leafLine:
+            leafKey = str(leafIndex)
+            leafValue = treeDict[treeIndex][leafKey]
+            treeOffset = offsetDict[treeIndex]
+            featIndex = treeOffset + int(leafValue)
+            lineFeatStr = lineFeatStr + (" %d:1" % (featIndex))
+            treeIndex = treeIndex + 1
+        # 全部特征写入文件
+        f.write(lineFeatStr)
+        f.write("\n")
+        idx = idx + 1
+    # 最后关闭文件
+    f.close()
+
+#######################################################################################################################
+
+
+
+
+
+
+
+
